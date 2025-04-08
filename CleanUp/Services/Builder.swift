@@ -6,6 +6,11 @@ protocol BuilderProtocol {
 
 final class Builder: BuilderProtocol {
     func createMainModule() -> UIViewController {
-        return MainViewController()
+        let viewModel = MainViewModel()
+        let viewController = MainViewController()
+        let photoManager = PhotoManager()
+        viewModel.photoManager = photoManager
+        viewController.viewModel = viewModel
+        return viewController
     }
 }
