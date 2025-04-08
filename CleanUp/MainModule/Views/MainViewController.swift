@@ -4,6 +4,7 @@ class MainViewController: UIViewController {
     
     var viewModel: MainViewModelProtocol?
     var groups: [GroupData.PhotoGroup] = []
+    private let deleteButton = UIButton()
     private lazy var collectionView = createCollectionView()
 
     override func viewDidLoad() {
@@ -11,18 +12,28 @@ class MainViewController: UIViewController {
         view.backgroundColor = .systemCyan
         navigationController?.navigationBar.isHidden = true
         connectToViewModel()
+        setupDeleteButton()
         collectionView.backgroundColor = .white
     }
     
     private func connectToViewModel() {
         viewModel?.updateViewData = { [weak self] data in
             switch data {
-            case .succes(let groups): self?.groups = groups; self?.collectionView.reloadData()
+            case .succes(let groups):
+                self?.groups = groups;
+                self?.collectionView.reloadData();
+                self?.deleteButton.setTitle("Delete (0)", for: .normal)
             case .loading: break
+            case .deleted: self?.deleteButton.isHidden = true
             case .failure: break
             }
         }
         viewModel?.viewDidLoad()
+    }
+    
+    func updateSelectionCounter() {
+        deleteButton.setTitle("Delete (\(viewModel?.getSelectedCount() ?? 0))", for: .normal)
+        deleteButton.isHidden = (viewModel?.getSelectedCount() == 0)
     }
 }
 
@@ -48,6 +59,26 @@ private extension MainViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         return collectionView
+    }
+    
+    private func setupDeleteButton() {
+        deleteButton.setTitle("Delete (\(viewModel?.getSelectedCount() ?? 0))", for: .normal)
+        deleteButton.backgroundColor = .red
+        deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(deleteButton)
+        NSLayoutConstraint.activate([
+            deleteButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            deleteButton.widthAnchor.constraint(equalToConstant: 120),
+            deleteButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        updateSelectionCounter()
+    }
+
+    @objc private func deleteButtonTapped() {
+        viewModel?.deleteButtonTapped()
+        updateSelectionCounter()
     }
 }
 

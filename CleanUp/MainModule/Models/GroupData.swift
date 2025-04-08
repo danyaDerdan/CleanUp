@@ -5,6 +5,7 @@ import CoreLocation
 enum GroupData {
     case succes([PhotoGroup])
     case loading
+    case deleted
     case failure(Error)
     
     struct PhotoGroup {

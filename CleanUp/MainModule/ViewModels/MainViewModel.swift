@@ -3,14 +3,42 @@ import Photos
 protocol MainViewModelProtocol {
     var updateViewData: ((GroupData) -> Void)? { get set }
     func viewDidLoad()
+    func tappedCell(with asset: PHAsset, selected: Bool)
+    func deleteButtonTapped()
+    func getSelectedCount() -> Int
 }
 
 final class MainViewModel: MainViewModelProtocol {
     var updateViewData: ((GroupData) -> Void)?
     var photoManager: PhotoManagerProtocol?
+    private var selectedAssets: [PHAsset] = []
     
     func viewDidLoad() {
         checkPhotoPermissions()
+    }
+    
+    func tappedCell(with asset: PHAsset, selected: Bool) {
+        if selected {
+            if let index = selectedAssets.firstIndex(of: asset) { selectedAssets.remove(at: index) }
+        } else { selectedAssets.append(asset) }
+    }
+    
+    func getSelectedCount() -> Int {
+        return selectedAssets.count
+    }
+    
+    func deleteButtonTapped() {
+        PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.deleteAssets(self.selectedAssets as NSFastEnumeration)
+            }, completionHandler: { success, error in
+                if success {
+                    self.selectedAssets.removeAll()
+                    DispatchQueue.main.async { self.updateViewData?(.deleted) }
+                    self.loadPhotos()
+                } else {
+                    print("Ошибка удаления: \(error?.localizedDescription ?? "")")
+                }
+            })
     }
     
     private func checkPhotoPermissions() {

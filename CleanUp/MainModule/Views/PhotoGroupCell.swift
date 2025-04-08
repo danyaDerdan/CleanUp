@@ -62,6 +62,15 @@ extension PhotoGroupCell: UICollectionViewDelegateFlowLayout, UICollectionViewDa
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView,
+                       willDisplay cell: UICollectionViewCell,
+                       forItemAt indexPath: IndexPath) {
+        cell.alpha = 0
+        UIView.animate(withDuration: 0.3) {
+            cell.alpha = 1
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         CGSize(width: 150, height: 150)
     }
@@ -73,6 +82,35 @@ extension PhotoGroupCell: UICollectionViewDelegateFlowLayout, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         10
     }
-    
-    
 }
+
+extension PhotoGroupCell: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset else { return }
+        
+        if let viewController = findViewController() as? MainViewController {
+            cell.isSelectedCell.toggle()
+            
+            if cell.isSelectedCell {
+                viewController.viewModel?.tappedCell(with: asset, selected: false)
+            } else {
+                viewController.viewModel?.tappedCell(with: asset, selected: true)
+            }
+            viewController.updateSelectionCounter()
+        }
+    }
+}
+
+extension UIView {
+    func findViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        while responder != nil {
+            if let viewController = responder as? UIViewController {
+                return viewController
+            }
+            responder = responder?.next
+        }
+        return nil
+    }
+}
+
