@@ -1,7 +1,9 @@
 import UIKit
+import Photos
 
 protocol RouterProtocol {
     func showMainModule()
+    func showDetailModule(with asset: PHAsset)
 }
 
 final class Router: RouterProtocol {
@@ -14,6 +16,10 @@ final class Router: RouterProtocol {
     }
     
     func showMainModule() {
-        navigationController.viewControllers = [builder.createMainModule()]
+        navigationController.viewControllers = [builder.createMainModule(router: self)]
+    }
+    
+    func showDetailModule(with asset: PHAsset) {
+        navigationController.present(builder.createDetailModule(with: asset), animated: true)
     }
 }
