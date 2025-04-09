@@ -7,7 +7,6 @@ protocol PhotoManagerProtocol {
 final class PhotoManager: PhotoManagerProtocol {
     func groupAssets(_ assets: [PHAsset]) -> [GroupData.PhotoGroup] {
         var groupsDict = [String: GroupData.PhotoGroup]()
-        
         for asset in assets  {
             guard let date = asset.creationDate else { continue }
             
@@ -24,7 +23,6 @@ final class PhotoManager: PhotoManagerProtocol {
                 )
             }
         }
-        
         return groupsDict.values
             .filter { $0.assets.count >= 2 }
             .sorted { $0.date > $1.date }
@@ -34,17 +32,12 @@ final class PhotoManager: PhotoManagerProtocol {
 private extension PHAsset {
     func groupKey() -> String {
         guard let date = creationDate else { return UUID().uuidString }
-        
         let dateKey = Calendar.current.startOfDay(for: date).timeIntervalSince1970
-        
-        // Для фото с локацией
         if let location = location {
             let lat = String(format: "%.3f", location.coordinate.latitude)
             let lon = String(format: "%.3f", location.coordinate.longitude)
             return "location_\(dateKey)_\(lat)_\(lon)"
         }
-        
-        // Для фото без локации
         return "date_\(dateKey)"
     }
 }

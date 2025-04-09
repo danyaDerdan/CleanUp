@@ -39,6 +39,8 @@ final class MainViewModel: MainViewModelProtocol {
                 PHAssetChangeRequest.deleteAssets(self.selectedAssets as NSFastEnumeration)
             }, completionHandler: { success, error in
                 if success {
+                    DispatchQueue.main.async { [assets = self.selectedAssets] in
+                        self.router?.showInfoModule(with: assets) }
                     self.selectedAssets.removeAll()
                     DispatchQueue.main.async { self.updateViewData?(.deleted) }
                     self.loadPhotos()
@@ -67,7 +69,7 @@ final class MainViewModel: MainViewModelProtocol {
         var validAssets = [PHAsset]()
         
         assets.enumerateObjects { asset, _, _ in
-            if asset.creationDate != nil { // Теперь учитываем фото без локации
+            if asset.creationDate != nil {
                 validAssets.append(asset)
             }
         }
