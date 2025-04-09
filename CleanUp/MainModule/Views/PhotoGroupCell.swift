@@ -48,46 +48,6 @@ final class PhotoGroupCell: UICollectionViewCell {
     }
 }
 
-extension PhotoGroupCell: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        assets.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCell else {
-            return UICollectionViewCell()
-        }
-        cell.configure(with: assets[indexPath.row], selectionMode: (findViewController() as? MainViewController)?.selectionMode ?? false)
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        CGSize(width: 150, height: 150)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        10
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        10
-    }
-}
-
-extension PhotoGroupCell: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset else { return }
-        guard let viewController = findViewController() as? MainViewController else  { return }
-        if viewController.selectionMode {
-            cell.isSelectedCell.toggle()
-            viewController.viewModel?.tappedCell(with: asset, selected: !cell.isSelectedCell)
-            viewController.updateSelectionCounter()
-        } else {
-            viewController.viewModel?.imageTapped(with: asset)
-        }
-    }
-}
 
 extension UIView {
     func findViewController() -> UIViewController? {
@@ -102,3 +62,16 @@ extension UIView {
     }
 }
 
+extension PhotoGroupCell: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        assets.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCell else {
+            return UICollectionViewCell()
+        }
+        cell.configure(with: assets[indexPath.row], selectionMode: (findViewController() as? MainViewController)?.selectionMode ?? false)
+        return cell
+    }
+}
