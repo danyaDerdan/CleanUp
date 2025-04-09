@@ -4,8 +4,16 @@ class MainViewController: UIViewController {
     
     var viewModel: MainViewModelProtocol?
     var groups: [GroupData.PhotoGroup] = []
+    var selectionMode: Bool = false {
+        didSet {
+            selectButton.setTitle(selectionMode ? "Escape" : "Select", for: .normal)
+        }
+    }
     private let deleteButton = UIButton()
     private lazy var collectionView = createCollectionView()
+    private lazy var countLabel = createCountLabel()
+    private lazy var selectButton = createSelectButton()
+    private lazy var detailImage = createDetailImage()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -13,7 +21,9 @@ class MainViewController: UIViewController {
         navigationController?.navigationBar.isHidden = true
         connectToViewModel()
         setupDeleteButton()
-        collectionView.backgroundColor = .white
+        updateSelectionCounter()
+        selectButton.isHidden = false
+        detailImage.alpha = 0
     }
     
     private func connectToViewModel() {
@@ -21,19 +31,32 @@ class MainViewController: UIViewController {
             switch data {
             case .succes(let groups):
                 self?.groups = groups;
+                self?.updateSelectionCounter()
                 self?.collectionView.reloadData();
-                self?.deleteButton.setTitle("Delete (0)", for: .normal)
             case .loading: break
-            case .deleted: self?.deleteButton.isHidden = true
+            case .deleted:
+                self?.deleteButton.isHidden = true
+                self?.countLabel.text = self?.getPhotoLibraryStatus()
             case .failure: break
             }
         }
         viewModel?.viewDidLoad()
     }
     
+    func performPhoto(image: UIImage?) {
+        detailImage.image = image
+        detailImage.alpha = 0
+        collectionView.isUserInteractionEnabled = false
+        detailImage.isUserInteractionEnabled = false
+        UIView.animate(withDuration: 0.3) {
+            self.detailImage.alpha = 1
+        }
+    }
+    
     func updateSelectionCounter() {
         deleteButton.setTitle("Delete (\(viewModel?.getSelectedCount() ?? 0))", for: .normal)
         deleteButton.isHidden = (viewModel?.getSelectedCount() == 0)
+        countLabel.text = getPhotoLibraryStatus()
     }
 }
 
@@ -61,24 +84,120 @@ private extension MainViewController {
         return collectionView
     }
     
+    private func createCountLabel() -> UILabel {
+        let titleLabel = UILabel()
+        titleLabel.text = "Similar"
+        titleLabel.font = .systemFont(ofSize: 28, weight: .bold)
+        titleLabel.textColor = .white
+        
+        let countLabel = UILabel()
+        countLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        countLabel.text = "test"
+        countLabel.textColor = .white
+        
+        let stack = UIStackView(arrangedSubviews: [titleLabel, countLabel])
+        stack.axis = .vertical
+        view.addSubview(stack)
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stack.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -20),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stack.topAnchor.constraint(equalTo: view.topAnchor, constant: 40)
+            ])
+        stack.alignment = .leading
+        
+        return countLabel
+    }
+    
     private func setupDeleteButton() {
         deleteButton.setTitle("Delete (\(viewModel?.getSelectedCount() ?? 0))", for: .normal)
-        deleteButton.backgroundColor = .red
+        deleteButton.backgroundColor = .systemCyan
+        deleteButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        deleteButton.titleLabel?.textAlignment = .center
+        deleteButton.tintColor = .white
+        deleteButton.layer.cornerRadius = 24
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(deleteButton)
+        collectionView.addSubview(deleteButton)
         NSLayoutConstraint.activate([
-            deleteButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            deleteButton.widthAnchor.constraint(equalToConstant: 120),
-            deleteButton.heightAnchor.constraint(equalToConstant: 40)
+            deleteButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
+            deleteButton.heightAnchor.constraint(equalToConstant: 80),
+            deleteButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            deleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
-        updateSelectionCounter()
+    }
+    
+    private func createSelectButton() -> UIButton {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitle("Select", for: .normal)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 24
+        view.addSubview(button)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            button.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: -20),
+            button.heightAnchor.constraint(equalToConstant: 50),
+            button.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.3)
+            ])
+        button.addTarget(self, action: #selector(selectButtonTapped), for: .touchUpInside)
+        return button
+    }
+    
+    private func createDetailImage() -> UIImageView {
+        let view = UIImageView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.addSubview(view)
+        view.layer.cornerRadius = 20
+        NSLayoutConstraint.activate([
+            view.widthAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.9),
+            view.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.9),
+            view.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
+            view.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+        ])
+        let closeButton = UIButton(type: .system)
+        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton.tintColor = .gray
+        view.addSubview(closeButton)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            closeButton.widthAnchor.constraint(equalToConstant: 40),
+            closeButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        
+        return view
     }
 
     @objc private func deleteButtonTapped() {
-        viewModel?.deleteButtonTapped()
+        viewModel?.deleteButtonTapped() //vc
         updateSelectionCounter()
+    }
+    
+    @objc private func selectButtonTapped() {
+        selectionMode.toggle()
+        if !selectionMode {
+            viewModel?.selectButtonTapped()
+            collectionView.reloadData()
+        } else {
+            collectionView.reloadData()
+        }
+        updateSelectionCounter()
+    }
+    
+    @objc private func closeButtonTapped() {
+        detailImage.alpha = 1
+        UIView.animate(withDuration: 0.3) {
+            self.detailImage.alpha = 0
+        }
+    }
+    
+    private func getPhotoLibraryStatus() -> String {
+        return "\(viewModel?.getSelectedCount() ?? 0) selected ⚫️ \(groups.count) groups"
     }
 }
 

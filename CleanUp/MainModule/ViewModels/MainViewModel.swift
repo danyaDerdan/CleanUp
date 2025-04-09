@@ -4,13 +4,16 @@ protocol MainViewModelProtocol {
     var updateViewData: ((GroupData) -> Void)? { get set }
     func viewDidLoad()
     func tappedCell(with asset: PHAsset, selected: Bool)
+    func selectButtonTapped()
     func deleteButtonTapped()
+    func imageTapped(with asset: PHAsset)
     func getSelectedCount() -> Int
 }
 
 final class MainViewModel: MainViewModelProtocol {
     var updateViewData: ((GroupData) -> Void)?
     var photoManager: PhotoManagerProtocol?
+    var router: RouterProtocol?
     private var selectedAssets: [PHAsset] = []
     
     func viewDidLoad() {
@@ -27,6 +30,10 @@ final class MainViewModel: MainViewModelProtocol {
         return selectedAssets.count
     }
     
+    func imageTapped(with asset: PHAsset) {
+        router?.showDetailModule(with: asset)
+    }
+    
     func deleteButtonTapped() {
         PHPhotoLibrary.shared().performChanges({
                 PHAssetChangeRequest.deleteAssets(self.selectedAssets as NSFastEnumeration)
@@ -39,6 +46,10 @@ final class MainViewModel: MainViewModelProtocol {
                     print("Ошибка удаления: \(error?.localizedDescription ?? "")")
                 }
             })
+    }
+    
+    func selectButtonTapped() {
+        selectedAssets.removeAll()
     }
     
     private func checkPhotoPermissions() {
@@ -65,6 +76,8 @@ final class MainViewModel: MainViewModelProtocol {
             self?.updateViewData?(.succes(self?.photoManager?.groupAssets(validAssets) ?? []))
         }
     }
+    
+    
 }
 
 

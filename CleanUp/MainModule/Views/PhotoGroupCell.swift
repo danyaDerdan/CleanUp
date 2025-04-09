@@ -58,17 +58,8 @@ extension PhotoGroupCell: UICollectionViewDelegateFlowLayout, UICollectionViewDa
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCell", for: indexPath) as? PhotoCell else {
             return UICollectionViewCell()
         }
-        cell.configure(with: assets[indexPath.row])
+        cell.configure(with: assets[indexPath.row], selectionMode: (findViewController() as? MainViewController)?.selectionMode ?? false)
         return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                       willDisplay cell: UICollectionViewCell,
-                       forItemAt indexPath: IndexPath) {
-        cell.alpha = 0
-        UIView.animate(withDuration: 0.3) {
-            cell.alpha = 1
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -87,16 +78,13 @@ extension PhotoGroupCell: UICollectionViewDelegateFlowLayout, UICollectionViewDa
 extension PhotoGroupCell: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? PhotoCell, let asset = cell.asset else { return }
-        
-        if let viewController = findViewController() as? MainViewController {
+        guard let viewController = findViewController() as? MainViewController else  { return }
+        if viewController.selectionMode {
             cell.isSelectedCell.toggle()
-            
-            if cell.isSelectedCell {
-                viewController.viewModel?.tappedCell(with: asset, selected: false)
-            } else {
-                viewController.viewModel?.tappedCell(with: asset, selected: true)
-            }
+            viewController.viewModel?.tappedCell(with: asset, selected: !cell.isSelectedCell)
             viewController.updateSelectionCounter()
+        } else {
+            viewController.viewModel?.imageTapped(with: asset)
         }
     }
 }

@@ -38,11 +38,12 @@ final class PhotoCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with asset: PHAsset?) {
+    func configure(with asset: PHAsset, selectionMode: Bool) {
         setupViews()
+        selectionIndicator.isHidden = !selectionMode
         self.asset = asset
         PHImageManager.default().requestImage(
-            for: asset ?? PHAsset(),
+            for: asset,
             targetSize: CGSize(width: 200, height: 200),
             contentMode: .aspectFill,
             options: nil
@@ -57,5 +58,6 @@ final class PhotoCell: UICollectionViewCell {
         isSelectedCell = false
         asset = nil
         selectionIndicator.backgroundColor = .clear
+        selectionIndicator.isHidden = true
     }
 }
