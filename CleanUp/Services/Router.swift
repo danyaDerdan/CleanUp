@@ -4,6 +4,8 @@ import Photos
 protocol RouterProtocol {
     func showMainModule()
     func showDetailModule(with asset: PHAsset)
+    func showInfoModule(with assets: [PHAsset])
+    func popToRoot()
 }
 
 final class Router: RouterProtocol {
@@ -21,5 +23,13 @@ final class Router: RouterProtocol {
     
     func showDetailModule(with asset: PHAsset) {
         navigationController.present(builder.createDetailModule(with: asset), animated: true)
+    }
+    
+    func showInfoModule(with assets: [PHAsset]) {
+        navigationController.pushViewController(builder.createInfoModule(with: assets, router: self), animated: true)
+    }
+    
+    func popToRoot() {
+        navigationController.popToRootViewController(animated: true)
     }
 }

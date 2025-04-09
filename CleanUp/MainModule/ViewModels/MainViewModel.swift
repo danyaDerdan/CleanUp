@@ -39,6 +39,8 @@ final class MainViewModel: MainViewModelProtocol {
                 PHAssetChangeRequest.deleteAssets(self.selectedAssets as NSFastEnumeration)
             }, completionHandler: { success, error in
                 if success {
+                    DispatchQueue.main.async { [assets = self.selectedAssets] in
+                        self.router?.showInfoModule(with: assets) }
                     self.selectedAssets.removeAll()
                     DispatchQueue.main.async { self.updateViewData?(.deleted) }
                     self.loadPhotos()
