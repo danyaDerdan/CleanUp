@@ -6,6 +6,25 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E12A6B4D2DA69F7600419EB1 /* Lottie-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = E12A6B4C2DA69F7600419EB1 /* Lottie-Dynamic */; };
+		E12A6BB82DA6A4F100419EB1 /* Lottie-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = E12A6B4C2DA69F7600419EB1 /* Lottie-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E12A6BB92DA6A4F100419EB1 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E12A6BB82DA6A4F100419EB1 /* Lottie-Dynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		E11E6E142DA3E8A900545C3E /* CleanUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CleanUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E12A6B4D2DA69F7600419EB1 /* Lottie-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				E11E6E162DA3E8A900545C3E /* CleanUp */,
+				E12A6BBA2DA6A51900419EB1 /* Frameworks */,
 				E11E6E152DA3E8A900545C3E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +79,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E12A6BBA2DA6A51900419EB1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -68,6 +96,7 @@
 				E11E6E102DA3E8A900545C3E /* Sources */,
 				E11E6E112DA3E8A900545C3E /* Frameworks */,
 				E11E6E122DA3E8A900545C3E /* Resources */,
+				E12A6BB92DA6A4F100419EB1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -78,6 +107,7 @@
 			);
 			name = CleanUp;
 			packageProductDependencies = (
+				E12A6B4C2DA69F7600419EB1 /* Lottie-Dynamic */,
 			);
 			productName = CleanUp;
 			productReference = E11E6E142DA3E8A900545C3E /* CleanUp.app */;
@@ -107,6 +137,9 @@
 			);
 			mainGroup = E11E6E0B2DA3E8A900545C3E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E12A6B492DA69F7600419EB1 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E11E6E152DA3E8A900545C3E /* Products */;
 			projectDirPath = "";
@@ -148,6 +181,7 @@
 				DEVELOPMENT_TEAM = KK7265PY5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CleanUp/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Needed";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -176,6 +210,7 @@
 				DEVELOPMENT_TEAM = KK7265PY5G;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CleanUp/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Needed";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -335,6 +370,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E12A6B492DA69F7600419EB1 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E12A6B4C2DA69F7600419EB1 /* Lottie-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E12A6B492DA69F7600419EB1 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = "Lottie-Dynamic";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E11E6E0C2DA3E8A900545C3E /* Project object */;
 }
