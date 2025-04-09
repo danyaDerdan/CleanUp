@@ -13,7 +13,6 @@ class MainViewController: UIViewController {
     private lazy var collectionView = createCollectionView()
     private lazy var countLabel = createCountLabel()
     private lazy var selectButton = createSelectButton()
-    private lazy var detailImage = createDetailImage()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,7 +22,6 @@ class MainViewController: UIViewController {
         setupDeleteButton()
         updateSelectionCounter()
         selectButton.isHidden = false
-        detailImage.alpha = 0
     }
     
     private func connectToViewModel() {
@@ -43,16 +41,6 @@ class MainViewController: UIViewController {
         viewModel?.viewDidLoad()
     }
     
-    func performPhoto(image: UIImage?) {
-        detailImage.image = image
-        detailImage.alpha = 0
-        collectionView.isUserInteractionEnabled = false
-        detailImage.isUserInteractionEnabled = false
-        UIView.animate(withDuration: 0.3) {
-            self.detailImage.alpha = 1
-        }
-    }
-    
     func updateSelectionCounter() {
         deleteButton.setTitle("Delete (\(viewModel?.getSelectedCount() ?? 0))", for: .normal)
         deleteButton.isHidden = (viewModel?.getSelectedCount() == 0)
@@ -63,12 +51,14 @@ class MainViewController: UIViewController {
 private extension MainViewController {
     func createCollectionView() -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
+        layout.headerReferenceSize = CGSize(width: view.bounds.width, height: 40)
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = 20
         layout.minimumInteritemSpacing = 10
         
         let collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collectionView.register(PhotoGroupCell.self, forCellWithReuseIdentifier: "PhotoGroupCell")
+        collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .systemBackground
@@ -145,33 +135,6 @@ private extension MainViewController {
         button.addTarget(self, action: #selector(selectButtonTapped), for: .touchUpInside)
         return button
     }
-    
-    private func createDetailImage() -> UIImageView {
-        let view = UIImageView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.addSubview(view)
-        view.layer.cornerRadius = 20
-        NSLayoutConstraint.activate([
-            view.widthAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.9),
-            view.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.9),
-            view.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
-            view.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
-        ])
-        let closeButton = UIButton(type: .system)
-        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
-        closeButton.tintColor = .gray
-        view.addSubview(closeButton)
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
-            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            closeButton.widthAnchor.constraint(equalToConstant: 40),
-            closeButton.heightAnchor.constraint(equalToConstant: 40)
-        ])
-        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
-        
-        return view
-    }
 
     @objc private func deleteButtonTapped() {
         viewModel?.deleteButtonTapped() //vc
@@ -187,13 +150,6 @@ private extension MainViewController {
             collectionView.reloadData()
         }
         updateSelectionCounter()
-    }
-    
-    @objc private func closeButtonTapped() {
-        detailImage.alpha = 1
-        UIView.animate(withDuration: 0.3) {
-            self.detailImage.alpha = 0
-        }
     }
     
     private func getPhotoLibraryStatus() -> String {
@@ -222,8 +178,9 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        // Реализация заголовка секции с датой и координатами
-        return UICollectionReusableView()
+        guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Header", for: indexPath) as? SectionHeader else { return UICollectionReusableView() }
+        sectionHeader.configure(with: "\(groups[indexPath.section].assets.count) Simillar")
+        return sectionHeader
     }
     
 }

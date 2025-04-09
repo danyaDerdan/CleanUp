@@ -1,10 +1,11 @@
+import Lottie
+
 import UIKit
 
 final class InfoViewController: UIViewController {
     
     var viewModel: InfoViewModelProtocol?
     private lazy var photoLabel = createPhotoLabel()
-    private lazy var weightLabel = createClassicLabel("")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,8 +17,7 @@ final class InfoViewController: UIViewController {
     
     private func connectToViewModel() {
         viewModel?.updateViewData = { [weak self] (number, string) in
-            self?.photoLabel.text = "\(number) Photos"
-            self?.weightLabel.text = "(\(string) MB)"
+            self?.updateLabel(number: number, string: string)
         }
     }
     
@@ -26,32 +26,43 @@ final class InfoViewController: UIViewController {
 private extension InfoViewController {
     func createPhotoLabel() -> UILabel {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .systemBlue
+        label.font = .systemFont(ofSize: 20, weight: .medium)
+        label.numberOfLines = 2
+        label.textAlignment = .left
         return label
     }
     func createClassicLabel(_ text: String) -> UILabel {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.text = text
+        label.font = .systemFont(ofSize: 20, weight: .regular)
+        let attributedString = NSMutableAttributedString(string: text)
+        attributedString.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: NSRange(location: 6, length: 10))
+        label.attributedText = attributedString
+        label.textAlignment = .left
+        label.numberOfLines = 2
         return label
     }
     
     func createTitleLabel() -> UILabel {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 24, weight: .bold)
+        label.font = .systemFont(ofSize: 28, weight: .bold)
         label.textAlignment = .center
         label.text = "Congratulations!"
         return label
     }
     
     private func setupViews() {
-        let infoStack = UIStackView(arrangedSubviews: [photoLabel, weightLabel])
-        infoStack.axis = .horizontal
-        let detailStack = UIStackView(arrangedSubviews: [createClassicLabel("You have deleted"), infoStack])
-        detailStack.axis = .vertical
         
-        let globalStack = UIStackView(arrangedSubviews: [createTitleLabel(), detailStack, createClassicLabel("You saved 10 minutes"), createButton()])
+        createButton()
+        
+        let infoStack = UIStackView(arrangedSubviews: [photoLabel])
+        infoStack.insertArrangedSubview(createAnim(named: "Stars"), at: 0)
+        infoStack.axis = .horizontal
+        
+        let spaceStack = UIStackView(arrangedSubviews: [createClassicLabel("Saved 10 minutes\nusing CleanUp")])
+        spaceStack.insertArrangedSubview(createAnim(named: "Clock1"), at: 0)
+        spaceStack.axis = .horizontal
+        
+        let globalStack = UIStackView(arrangedSubviews: [createAnim(named: "Succes") ,createTitleLabel(), infoStack, spaceStack])
         
         globalStack.alignment = .center
         globalStack.distribution = .fillEqually
@@ -61,12 +72,12 @@ private extension InfoViewController {
         NSLayoutConstraint.activate([
             globalStack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             globalStack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            globalStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
+            globalStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
             globalStack.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.7)
             ])
     }
     
-    private func createButton() -> UIButton {
+    private func createButton() {
         let button = UIButton(type: .system)
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.setTitleColor(.white, for: .normal)
@@ -76,7 +87,27 @@ private extension InfoViewController {
         view.addSubview(button)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
-        return button
+        NSLayoutConstraint.activate([
+            button.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
+            button.heightAnchor.constraint(equalToConstant: 80),
+            button.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            ])
+    }
+    
+    func updateLabel(number: Int, string: String) {
+        let text = "You have deleted\n\(number) Photo  (\(string) MB)"
+        let attributedText = NSMutableAttributedString(string: text)
+        attributedText.addAttribute(.foregroundColor, value: UIColor.systemBlue, range: NSRange(location: 17, length: text.count - 27))
+        photoLabel.attributedText = attributedText
+    }
+    
+    func createAnim(named: String) -> LottieAnimationView{
+        let anim = LottieAnimationView(name: named)
+        anim.contentMode = .scaleAspectFit
+        anim.loopMode = .loop
+        anim.play()
+        return anim
     }
     
     @objc private func tapped() {
